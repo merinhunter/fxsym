@@ -11,13 +11,14 @@ func _() {
 	_ = x[SNone-0]
 	_ = x[SProg-1]
 	_ = x[SFunc-2]
-	_ = x[SVar-3]
-	_ = x[SConst-4]
+	_ = x[SType-3]
+	_ = x[SVar-4]
+	_ = x[SConst-5]
 }
 
-const _sType_name = "SNoneSProgSFuncSVarSConst"
+const _sType_name = "SNoneSProgSFuncSTypeSVarSConst"
 
-var _sType_index = [...]uint8{0, 5, 10, 15, 19, 25}
+var _sType_index = [...]uint8{0, 5, 10, 15, 20, 24, 30}
 
 func (i sType) String() string {
 	if i < 0 || i >= sType(len(_sType_index)-1) {

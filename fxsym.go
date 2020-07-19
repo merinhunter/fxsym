@@ -10,6 +10,7 @@ const (
 	SNone = iota
 	SProg
 	SFunc
+	SType
 	SVar
 	SConst
 )
@@ -73,8 +74,16 @@ type Sym struct {
 	symContent interface{}
 }
 
-func (s *Sym) GetType() string {
+func (s *Sym) Name() string {
+	return s.name
+}
+
+func (s *Sym) SymType() string {
 	return sType(s.sType).String()
+}
+
+func (s *Sym) SetType(tp int) {
+	s.tType = &Type{tp}
 }
 
 func (s *Sym) SetDepth(depth int) {
@@ -108,7 +117,7 @@ func (s *Sym) String() string {
 	}
 
 	tabs := strings.Repeat("\t", s.depth)
-	return fmt.Sprintf("%s%p SYM[%s](%s)", tabs, s, s.GetType(), s.name)
+	return fmt.Sprintf("%s%p SYM[%s](%s)", tabs, s, s.SymType(), s.name)
 }
 
 type Type struct {
