@@ -3,6 +3,7 @@ package fxsym
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -34,6 +35,28 @@ func (envs *StkEnv) PopEnv() {
 	*envs = eS[:len(eS)-1]
 }
 
+const DEval = false
+
+func (envs *StkEnv) DPrintf(s string, v ...interface{}) {
+	lvl := len(*envs)
+	tabs := strings.Repeat("\t", lvl)
+	if DEval {
+		prefix := fmt.Sprintf("%sINTERP: ", tabs)
+		fmt.Fprintf(os.Stderr, prefix+s, v...)
+	}
+}
+
+func prVars(envs *StkEnv) {
+	eS := *envs
+	e := eS[len(eS)-1]
+
+	for _, v := range e {
+		if v.sType == SVar {
+			envs.DPrintf("VAR %s\n", v.Name())
+		}
+	}
+}
+
 func (envs *StkEnv) NewSym(name string, sType int) (s *Sym, err error) {
 	eS := *envs
 	e := eS[len(eS)-1]
@@ -42,6 +65,20 @@ func (envs *StkEnv) NewSym(name string, sType int) (s *Sym, err error) {
 		if _, ok := eS[i][name]; ok {
 			return nil, errors.New("already declared sym")
 		}
+	}
+
+	s = &Sym{name: name, sType: sType}
+	e[name] = s
+
+	return s, nil
+}
+
+func (envs *StkEnv) NewSymWithShadowing(name string, sType int) (s *Sym, err error) {
+	eS := *envs
+	e := eS[len(eS)-1]
+
+	if _, ok := e[name]; ok {
+		return nil, errors.New("already declared sym")
 	}
 
 	s = &Sym{name: name, sType: sType}
@@ -78,6 +115,14 @@ func (s *Sym) Name() string {
 	return s.name
 }
 
+func (s *Sym) Type() int {
+	return s.tType.id
+}
+
+func (s *Sym) SType() int {
+	return s.sType
+}
+
 func (s *Sym) SymType() string {
 	return sType(s.sType).String()
 }
@@ -101,6 +146,10 @@ func (s *Sym) AddTokKind(tokKind int) {
 func (s *Sym) AddPlace(file string, line int) {
 	s.file = file
 	s.line = line
+}
+
+func (s *Sym) File() string {
+	return s.file
 }
 
 func (s *Sym) AddContent(content interface{}) {
